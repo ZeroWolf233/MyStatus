@@ -12,6 +12,6 @@ h2, .container, .nav-links>li>a {
 
 @media (max-aspect-ratio: 1/1) {
     body::before {
-        background-image: url('/backgrounds/background.webp') !important;
+        background-image: url('https://img.zerowolf.cn/auto') !important;
     }
 }

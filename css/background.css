@@ -13,7 +13,7 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('https://img.zerowolf.cn/pc');
+    background-image: url('https://img.zerowolf.cn/auto');
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
@@ -40,6 +40,6 @@ html.darkmode body.blur-disabled::before {
 
 @media (max-aspect-ratio: 1/1) {
     body::before {
-        background-image: url('https://img.zerowolf.cn/mobile');
+        background-image: url('https://img.zerowolf.cn/auto');
     }
 }
