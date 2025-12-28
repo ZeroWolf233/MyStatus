@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>似了吗？</title>
+    <link href="/index.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 0 !important;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .status-container {
+            padding: 30px;
+        }
+
+        .online-status {
+            background-color: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .maybe-status {
+            background-color: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .offline-status {
+            background-color: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-status {
+            background-color: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+        }
+
+        .status-text {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .status-detail {
+            margin-top: 8px;
+            font-size: 1rem;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .device-name-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .device-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .ignored-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: normal;
+        }
+
+        .device-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .online {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .offline {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .screen-off {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .locked {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .heartbeat-timeout {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px dashed #c62828;
+        }
+
+        .device-info {
+            margin-top: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            display: flex;
+        }
+
+        .info-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #555;
+        }
+
+        .info-value {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .battery-low {
+            color: #f44336;
+        }
+
+        .battery-charging {
+            color: #ff9800;
+        }
+
+        .battery-charged {
+            color: #4caf50;
+        }
+
+        .battery-normal {
+            color: #333;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .devices-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .device-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .device-name-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+
+        .refresh-btn {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background-color: #1a252f;
+        }
+
+        .next-update {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>活着？</h1>
+            <p class="subtitle">零狼还在嘛</p>
+        </header>
+
+        <div class="status-container">
+            <div id="status-message">
+                <div class="loading">正在加载状态...</div>
+            </div>
+
+            <div class="devices-grid" id="devices-container">
+                <!-- 将会被JavaScript填充 -->
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="refresh-btn" id="refresh-btn">刷新</button>
+            </div>
+
+            <div class="next-update" id="next-update">
+                下一次更新: <span id="countdown">10</span>秒
+            </div>
+
+            <div>
+                最后更新: <span id="last-update-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Format date and time
+        function formatDateTime(dateString) {
+            if (!dateString) return "未知";
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // Calculate time difference
+        function getMinutesDiff(dateString) {
+            if (!dateString) return Infinity;
+            const now = new Date();
+            const date = new Date(dateString);
+            return Math.floor((now - date) / (1000 * 60));
+        }
+
+        // Heartbeat
+        function isHeartbeatTimeout(lastUpdatedAt) {
+            return getMinutesDiff(lastUpdatedAt) > 8;
+        }
+
+        // Get device status text
+        function getStatusText(status, lastUpdatedAt) {
+            const statusMap = {
+                0: "离线",
+                1: "在线",
+                2: "屏幕关闭",
+                3: "已锁定"
+            };
+
+            let statusText = statusMap[status] || "未知";
+
+            // Heartbeat timeout
+            if (status !== 0 && isHeartbeatTimeout(lastUpdatedAt)) {
+                statusText = "心跳超时";
+            }
+
+            return statusText;
+        }
+
+        // Get device status CSS class
+        function getStatusClass(status, lastUpdatedAt) {
+            if (status === 1 && isHeartbeatTimeout(lastUpdatedAt)) {
+                return "heartbeat-timeout";
+            }
+
+            const classMap = {
+                0: "offline",
+                1: "online",
+                2: "screen-off",
+                3: "locked"
+            };
+
+            return classMap[status] || "offline";
+        }
+
+        // Battery info
+        function getBatteryInfo(battery) {
+            // No available battery
+            if (!battery || battery.power === undefined) {
+                return { text: '', className: '' };
+            }
+
+            const { power, charging } = battery;
+            let text = `${power}%`;
+            let className = '';
+
+            // Charging
+            if (charging) {
+                text += ' (充电中)';
+                // Full
+                if (power >= 100) {
+                    className = 'battery-charged';
+                }
+                // Charging but not full
+                else {
+                    className = 'battery-charging';
+                }
+            }
+            // Not charging
+            else className = power <= 15 ? 'battery-low' : 'battery-normal';
+
+            return { text, className };
+        }
+
+        // Determine overall online status
+        function getOverallStatus(data) {
+            // Ignore some devices
+            const devices = data.filter(d => !d?.ignored);
+
+            // Check for any active device
+            const hasActiveDevice = devices.some(device =>
+                device.status === 1 && !isHeartbeatTimeout(device.lastUpdatedAt)
+            );
+
+            if (hasActiveDevice) {
+                return {
+                    status: "online",
+                    message: "在线",
+                    detail: "可以直接联系"
+                };
+            }
+
+            // Get all devices' last online times
+            const lastOnlineTimes = devices
+                .map(device => device.lastOnline ? new Date(device.lastOnline).getTime() : 0)
+                .filter(time => time > 0);
+
+            if (lastOnlineTimes.length === 0) {
+                return {
+                    status: "offline",
+                    message: "似了",
+                    detail: "看起来并不在线"
+                };
+            }
+
+            // Get the most recent last online time
+            const latestLastOnline = Math.max(...lastOnlineTimes);
+            const minutesSinceLastOnline = getMinutesDiff(new Date(latestLastOnline));
+
+            if (minutesSinceLastOnline <= 15) {
+                return {
+                    status: "online",
+                    message: "在线",
+                    detail: "可以直接联系"
+                };
+            } else if (minutesSinceLastOnline <= 60) {
+                return {
+                    status: "maybe",
+                    message: "可能似了？",
+                    detail: "不确定，但最近有活动过"
+                };
+            } else {
+                return {
+                    status: "offline",
+                    message: "似了",
+                    detail: "看起来并不在线"
+                };
+            }
+        }
+
+        // Fetch data from API
+        async function fetchData() {
+            try {
+                const response = await fetch('https://saltwood.top:4042/api/v1/status');
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                throw error;
+            }
+        }
+
+        // Display error status
+        function showErrorStatus(error) {
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.innerHTML = `
+                <div class="error-status">
+                    <div class="status-icon">❌</div>
+                    <div>
+                        <div class="status-text">数据获取失败</div>
+                        <div class="status-detail">${error.message || '无法连接到服务器'}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('devices-container').innerHTML = '';
+            document.getElementById('last-update-time').textContent = formatDateTime(new Date());
+        }
+
+        // Render page
+        function renderPage(data) {
+            const devices = data.data;
+            const overallStatus = getOverallStatus(devices);
+
+            // Update status message
+            const statusMessage = document.getElementById('status-message');
+            let statusClass = "";
+            let statusIcon = "";
+
+            if (overallStatus.status === "online") {
+                statusClass = "online-status";
+                statusIcon = "✅";
+            } else if (overallStatus.status === "maybe") {
+                statusClass = "maybe-status";
+                statusIcon = "🤔";
+            } else {
+                statusClass = "offline-status";
+                statusIcon = "❌";
+            }
+
+            statusMessage.innerHTML = `
+                <div class="${statusClass}">
+                    <div class="status-icon">${statusIcon}</div>
+                    <div>
+                        <div class="status-text">${overallStatus.message}</div>
+                        <div class="status-detail">${overallStatus.detail}</div>
+                    </div>
+                </div>
+            `;
+
+            // Render device cards
+            const devicesContainer = document.getElementById('devices-container');
+            devicesContainer.innerHTML = '';
+
+            devices.forEach(device => {
+                const deviceCard = document.createElement('div');
+                deviceCard.className = 'device-card';
+
+                const statusText = getStatusText(device.status, device.lastUpdatedAt);
+                const statusClass = getStatusClass(device.status, device.lastUpdatedAt);
+                // 新增：获取当前设备的电池信息
+                const { text: batteryText, className: batteryClassName } = getBatteryInfo(device.battery);
+
+                // 检查设备是否被忽略
+                const ignoredLabel = device.ignored ? '<span class="ignored-label">(已忽略)</span>' : '';
+
+                deviceCard.innerHTML = `
+                    <div class="device-header">
+                        <div class="device-name-container">
+                            <div class="device-name">${device.name}</div>
+                            ${ignoredLabel}
+                        </div>
+                        <div class="device-status ${statusClass}">
+                            ${statusText}
+                        </div>
+                    </div>
+                    <div class="device-info">
+                        <div class="info-item">
+                            <div class="info-label">最后心跳:</div>
+                            <div class="info-value">${formatDateTime(device.lastUpdatedAt)}</div>
+                            </div>
+                        <div class="info-item">
+                            <div class="info-label">最后在线:</div>
+                            <div class="info-value">${formatDateTime(device.lastOnline)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">状态消息:</div>
+                            <div class="info-value">${device.message}</div>
+                        </div>
+                        ${batteryText ? `<div class="info-item">
+                            <div class="info-label">电池:</div>
+                            <div class="info-value ${batteryClassName}"><strong>${batteryText}</strong></div>
+                        </div>` : ''}
+                    </div>
+                `;
+
+                devicesContainer.appendChild(deviceCard);
+            });
+
+            // Update footer time
+            document.getElementById('last-update-time').textContent = formatDateTime(new Date());
+        }
+
+        // Update countdown display
+        function updateCountdown(seconds) {
+            document.getElementById('countdown').textContent = seconds;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function () {
+            let countdown = 10;
+            let countdownInterval;
+
+            // Start countdown
+            function startCountdown() {
+                countdown = 10;
+                updateCountdown(countdown);
+
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+
+                countdownInterval = setInterval(() => {
+                    countdown--;
+                    updateCountdown(countdown);
+
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        fetchAndUpdateData();
+                    }
+                }, 1000);
+            }
+
+            // Fetch and update data
+            async function fetchAndUpdateData() {
+                try {
+                    const data = await fetchData();
+                    renderPage(data);
+                } catch (error) {
+                    showErrorStatus(error);
+                } finally {
+                    // 10 秒后重新获取
+                    startCountdown();
+                }
+            }
+
+            // Initial load
+            fetchAndUpdateData();
+
+            // Refresh button event
+            document.getElementById('refresh-btn').addEventListener('click', async function () {
+                this.disabled = true;
+                this.textContent = '刷新中...';
+
+                // Clear countdown
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+
+                await fetchAndUpdateData();
+
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.textContent = '立即刷新';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+
+</html>
