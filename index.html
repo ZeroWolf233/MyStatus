@@ -493,7 +493,6 @@
             `;
 
             document.getElementById('devices-container').innerHTML = '';
-            document.getElementById('last-update-time').textContent = formatDateTime(new Date());
         }
 
         // Render page
@@ -575,9 +574,6 @@
 
                 devicesContainer.appendChild(deviceCard);
             });
-
-            // Update footer time
-            document.getElementById('last-update-time').textContent = formatDateTime(new Date());
         }
 
         // Update countdown display
