@@ -314,10 +314,6 @@
             <div class="next-update" id="next-update">
                 下一次更新: <span id="countdown">10</span>秒
             </div>
-
-            <div>
-                最后更新: <span id="last-update-time"></span>
-            </div>
         </div>
     </div>
 
@@ -362,7 +358,7 @@
 
             // Heartbeat timeout
             if (status !== 0 && isHeartbeatTimeout(lastUpdatedAt)) {
-                statusText = "心跳超时";
+                statusText = "设备数据超时";
             }
 
             return statusText;
@@ -559,15 +555,15 @@
                     </div>
                     <div class="device-info">
                         <div class="info-item">
-                            <div class="info-label">最后心跳:</div>
+                            <div class="info-label">上次更新:</div>
                             <div class="info-value">${formatDateTime(device.lastUpdatedAt)}</div>
                             </div>
                         <div class="info-item">
-                            <div class="info-label">最后在线:</div>
+                            <div class="info-label">上次在线:</div>
                             <div class="info-value">${formatDateTime(device.lastOnline)}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">状态消息:</div>
+                            <div class="info-label">状态:</div>
                             <div class="info-value">${device.message}</div>
                         </div>
                         ${batteryText ? `<div class="info-item">
