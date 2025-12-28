@@ -1,6 +1,6 @@
 :root {
     --blur-zero: blur(0);
-    --blur-max: blur(10px);
+    --blur-max: blur(3px);
     --brightness-zero: brightness(0%);
     --brightness-half: brightness(50%);
     --brightness-max: brightness(100%);
