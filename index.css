@@ -1,385 +1,369 @@
 :root {
-    --bg-blur: 8px; /* Background blur effect */
-    --bg-brightness: 0.7; /* Background brightness */
-    --container-bg-opacity: 0.5; /* Opacity of the main container background */
-    --card-bg-opacity: 0.7; /* Opacity of device card backgrounds */
-    --text-color-primary: #333;
-    --text-color-secondary: #555;
-    --border-color: #e0e0e0;
-    --header-bg-start: #2c3e50;
-    --header-bg-end: #34495e;
-    --online-color: #4caf50;
-    --offline-color: #f44336;
-    --maybe-color: #ff9800;
-    --screen-off-color: #ef6c00;
-    --locked-color: #1565c0;
-    --info-label-color: #666;
-    --footer-text-color: #777;
-    --link-color: #fba414;
-}
-
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('https://img.zerowolf.cn/auto');
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    filter: blur(var(--bg-blur)) brightness(var(--bg-brightness));
-    transition: filter 0.8s ease, opacity 0.8s ease;
-    z-index: -1;
-    opacity: 0.9; /* Slightly reduce background image opacity */
-}
-
-a {
-    color: var(--link-color);
-    text-decoration: none;
-    transition: opacity 0.2s;
-}
-
-a:hover {
-    opacity: 0.8;
+    --primary: #6366f1;
+    --primary-glow: rgba(99, 102, 241, 0.4);
+    --success: #10b981;
+    --success-glow: rgba(16, 185, 129, 0.4);
+    --danger: #ef4444;
+    --danger-glow: rgba(239, 68, 68, 0.4);
+    --warning: #f59e0b;
+    --bg-glass: rgba(255, 255, 255, 0.75);
+    --card-glass: rgba(255, 255, 255, 0.65);
+    --card-hover: rgba(255, 255, 255, 0.85);
+    --text-main: #1f2937;
+    --text-sub: #6b7280;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
 body {
-    background-color: transparent; /* Changed to transparent to show the pseudo-element background */
-    color: var(--text-color-primary);
     min-height: 100vh;
+    color: var(--text-main);
+    background-color: #f3f4f6;
+    background-image: url('https://img.zerowolf.cn/auto');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
     position: relative;
-    line-height: 1.6; /* Improved readability */
-    border-radius: 10px; /* Softer look for the body */
+    overflow-x: hidden;
+}
+
+/* 增加一层遮罩让背景不那么抢眼 */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px) saturate(160%);
+    z-index: -1;
+}
+
+/* 装饰性背景光斑 */
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    opacity: 0.6;
+    animation: float 10s infinite ease-in-out;
+}
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    background: #a5b4fc;
+    top: -50px;
+    left: -50px;
+}
+.orb-2 {
+    width: 400px;
+    height: 400px;
+    background: #fbcfe8;
+    bottom: -100px;
+    right: -100px;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 50px); }
 }
 
 .container {
-    max-width: 1200px;
-    margin: 20px auto; /* Add margin to top/bottom */
-    background-color: rgba(255, 255, 255, var(--container-bg-opacity)); /* Glassmorphism effect */
-    backdrop-filter: blur(10px); /* Glassmorphism blur */
-    border-radius: 15px; /* Softer rounded corners */
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25); /* More pronounced shadow */
-    overflow: hidden;
-    padding: 0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border for glass effect */
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 
+/* 头部样式 */
 header {
-    background: linear-gradient(135deg, var(--header-bg-start), var(--header-bg-end)); /* Gradient background */
-    color: white;
-    padding: 30px 25px; /* Increased padding */
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    padding: 0 10px;
 }
 
 h1 {
-    font-size: 3rem; /* Larger heading */
-    margin-bottom: 12px;
-    letter-spacing: 1px; /* Slightly more spaced out */
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4f46e5, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
 }
 
 .subtitle {
-    font-size: 1.3rem; /* Slightly larger subtitle */
-    opacity: 0.95;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 300; /* Lighter font weight */
+    font-size: 1rem;
+    color: var(--text-sub);
+    font-weight: 500;
 }
 
-.status-container {
-    padding: 30px; /* Consistent padding */
-    display: flex;
-    flex-direction: column;
-    gap: 25px; /* Spacing between sections */
-}
-
-.online-status,
-.maybe-status,
-.offline-status,
-.error-status {
-    background-color: rgba(255, 255, 255, var(--card-bg-opacity)); /* Use opacity variable */
-    border-left: 5px solid;
-    padding: 22px;
-    margin-bottom: 0; /* Remove margin-bottom as gap handles spacing */
-    border-radius: 10px; /* Slightly more rounded */
+.next-update {
+    background: var(--bg-glass);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Refined shadow */
-    transition: all 0.3s ease; /* Smooth transitions */
+    gap: 8px;
+    backdrop-filter: blur(5px);
 }
 
-.online-status { border-color: var(--online-color); }
-.maybe-status { border-color: var(--maybe-color); }
-.offline-status { border-color: var(--offline-color); }
-.error-status { border-color: var(--offline-color); }
-
-.status-icon {
-    font-size: 3rem; /* Larger icons */
-    margin-right: 25px;
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+    animation: pulse-green 2s infinite;
 }
 
-.status-text {
-    font-size: 1.5rem; /* Larger status text */
-    font-weight: bold;
-    color: var(--text-color-primary);
+/* 状态展示区 */
+.hero-status {
+    margin-bottom: 40px;
 }
 
-.status-detail {
-    margin-top: 6px; /* Adjusted margin */
+.status-banner {
+    background: var(--bg-glass);
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.status-banner:hover {
+    transform: translateY(-2px);
+}
+
+.status-banner.online { border-left: 6px solid var(--success); }
+.status-banner.offline { border-left: 6px solid var(--danger); }
+.status-banner.maybe { border-left: 6px solid var(--warning); }
+
+.big-icon {
+    font-size: 3.5rem;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.status-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.status-desc {
+    color: var(--text-sub);
     font-size: 1.05rem;
-    font-weight: normal;
-    opacity: 0.85;
-    color: var(--text-color-secondary);
 }
 
+/* 分割线 */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 30px 0 20px;
+    color: var(--text-sub);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+}
+.divider span { padding: 0 15px; opacity: 0.6; }
+
+/* 设备卡片网格 */
 .devices-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly wider cards */
-    gap: 25px; /* Increased gap */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .device-card {
-    background: rgba(255, 255, 255, var(--card-bg-opacity)); /* Glassmorphism background */
-    border-radius: 12px; /* More rounded corners */
-    padding: 25px; /* Increased padding */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.4); /* Subtle glass border */
-    backdrop-filter: blur(8px); /* Card-specific glassmorphism blur */
+    background: var(--card-glass);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .device-card:hover {
-    transform: translateY(-7px); /* More pronounced lift effect */
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-    background-color: rgba(255, 255, 255, calc(var(--card-bg-opacity) + 0.1)); /* Slight opacity increase on hover */
+    transform: translateY(-5px);
+    background: var(--card-hover);
+    box-shadow: var(--shadow-lg);
 }
 
 .device-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px; /* Adjusted margin */
-    border-bottom: 1px solid var(--border-color); /* Use variable */
-    padding-bottom: 12px; /* Adjusted padding */
-}
-
-.device-name-container {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Increased gap */
+    align-items: flex-start;
+    margin-bottom: 20px;
 }
 
 .device-name {
-    font-size: 1.4rem; /* Larger device name */
-    font-weight: bold;
-    color: var(--text-color-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
-.ignored-label {
-    font-size: 0.95rem;
-    color: var(--text-color-secondary);
-    font-weight: normal;
-    opacity: 0.7;
-}
-
-.device-status {
-    padding: 6px 14px;
-    border-radius: 25px;
-    font-size: 0.95rem; /* Slightly larger font */
-    font-weight: bold;
-    text-transform: uppercase; /* Uppercase for status */
+.device-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap; /* Prevent status text from wrapping */
 }
 
-.online {
-    background-color: rgba(76, 175, 80, 0.15); /* Softer background */
-    color: var(--online-color);
-}
+/* 状态颜色 */
+.bg-green { background: rgba(16, 185, 129, 0.1); color: #059669; }
+.bg-red { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+.bg-orange { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+.bg-blue { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
 
-.offline {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: var(--offline-color);
-}
-
-.screen-off {
-    background-color: rgba(255, 152, 0, 0.15);
-    color: var(--screen-off-color);
-}
-
-.locked {
-    background-color: rgba(21, 101, 192, 0.15);
-    color: var(--locked-color);
-}
-
-.heartbeat-timeout {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: var(--offline-color);
-    border: 1px dashed var(--offline-color); /* Dashed border for emphasis */
-}
-
-.device-info {
-    margin-top: 20px; /* Increased margin */
+/* 卡片详情行 */
+.info-row {
     display: flex;
-    flex-direction: column;
-    gap: 8px; /* Spacing between info items */
-}
-
-.info-item {
-    margin-bottom: 0; /* Remove default margin */
-    display: flex;
-    align-items: center; /* Vertically align items */
-    gap: 15px; /* Spacing between label and value */
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
 }
 
 .info-label {
-    font-weight: 600; /* Slightly bolder */
-    min-width: 100px; /* Adjusted min-width for consistency */
-    color: var(--info-label-color);
-    font-size: 0.95rem;
+    color: var(--text-sub);
+    font-size: 0.9rem;
 }
 
-.info-value {
-    flex: 1;
-    word-break: break-word;
-    color: var(--text-color-primary);
-    font-size: 0.95rem;
+.info-val {
+    font-weight: 500;
+    color: var(--text-main);
+    text-align: right;
+    max-width: 60%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.battery-low {
-    color: var(--offline-color);
-    font-weight: bold;
+/* 电池条 */
+.battery-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+.battery-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.charging-icon {
+    font-size: 0.8rem;
+    color: var(--warning);
 }
 
-.battery-charging {
-    color: var(--maybe-color);
-    font-weight: bold;
-}
-
-.battery-charged {
-    color: var(--online-color);
-    font-weight: bold;
-}
-
-.battery-normal {
-    color: var(--text-color-primary);
-}
-
-footer {
+/* 按钮 */
+.actions {
+    margin-top: 40px;
     text-align: center;
-    padding: 25px 20px; /* Adjusted padding */
-    color: var(--footer-text-color);
-    margin-top: 40px; /* Increased margin */
-    font-size: 0.95rem;
-    opacity: 0.9; /* Slightly softer text */
-}
-
-@media (max-width: 768px) {
-    .devices-grid {
-        grid-template-columns: 1fr;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    .subtitle {
-        font-size: 1.1rem;
-    }
-
-    .device-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px; /* Adjusted gap */
-    }
-
-    .device-name-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px; /* Adjusted gap */
-    }
-
-    .status-icon {
-        font-size: 2.5rem;
-    }
-
-    .status-text {
-        font-size: 1.3rem;
-    }
-
-    .status-detail {
-        font-size: 0.95rem;
-    }
-
-    .device-card {
-        padding: 20px;
-    }
-
-    .device-name {
-        font-size: 1.2rem;
-    }
-
-    .info-label {
-        min-width: 90px;
-    }
-}
-
-.loading {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.3rem;
-    color: var(--text-color-secondary);
 }
 
 .refresh-btn {
-    background-color: var(--header-bg-start); /* Use header color */
+    background: var(--text-main);
     color: white;
     border: none;
-    padding: 12px 25px; /* Increased padding */
-    border-radius: 8px; /* More rounded */
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 1.05rem;
-    margin-top: 20px; /* Adjusted margin */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .refresh-btn:hover {
-    background-color: var(--header-bg-end); /* Darker on hover */
-    transform: translateY(-2px);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
 
 .refresh-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95);
 }
 
 .refresh-btn:disabled {
-    background-color: #cccccc;
+    background: #9ca3af;
     cursor: not-allowed;
-    transform: translateY(0);
-    box-shadow: none;
+    transform: none;
 }
 
-.next-update {
+/* Footer */
+footer {
     text-align: center;
-    margin-top: 18px; /* Adjusted margin */
-    font-size: 1rem;
-    color: var(--info-label-color);
-    font-weight: 500;
+    margin-top: auto;
+    padding: 20px;
+    color: var(--text-sub);
+    font-size: 0.9rem;
 }
 
-#countdown {
-    font-weight: bold;
-    color: var(--text-color-primary);
+footer a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px dotted currentColor;
+}
+
+/* 加载动画 */
+.loading-card {
+    text-align: center;
+    padding: 40px;
+    background: var(--bg-glass);
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+}
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@media (max-width: 640px) {
+    h1 { font-size: 2rem; }
+    .status-banner { flex-direction: column; text-align: center; gap: 15px; }
+    .status-banner.online { border-left: none; border-top: 6px solid var(--success); }
+    .device-card { padding: 20px; }
 }

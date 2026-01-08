@@ -1,315 +1,281 @@
-// 将时间格式化
-        function formatDateTime(dateString) {
-            if (!dateString) return "未知";
-            const date = new Date(dateString);
-            return date.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
+// 格式化时间，去掉秒，让界面更清爽
+function formatDateTime(dateString) {
+    if (!dateString) return "未知";
+    const date = new Date(dateString);
+    // 检查是否是今天
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
 
-        // 计算时间差（分钟）
-        function getMinutesDiff(dateString) {
-            if (!dateString) return Infinity;
-            const now = new Date();
-            const date = new Date(dateString);
-            return Math.floor((now - date) / (1000 * 60));
-        }
+    const timeStr = date.toLocaleString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
-        // 心跳超时判断
-        function isHeartbeatTimeout(lastUpdatedAt) {
-            return getMinutesDiff(lastUpdatedAt) > 8;
-        }
+    if (isToday) {
+        return `今天 ${timeStr}`;
+    }
 
-        // 获取设备状态文本
-        function getStatusText(status, lastUpdatedAt) {
-            const statusMap = {
-                0: "离线",
-                1: "在线",
-                2: "屏幕关闭",
-                3: "已锁定"
-            };
+    return date.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
 
-            // 如果超时，强制返回“离线”
-            if (status !== 0 && isHeartbeatTimeout(lastUpdatedAt)) {
-                return statusMap[0];
-            }
+function getMinutesDiff(dateString) {
+    if (!dateString) return Infinity;
+    const now = new Date();
+    const date = new Date(dateString);
+    return Math.floor((now - date) / (1000 * 60));
+}
 
-            return statusMap[status] || "未知";
-        }
+function isHeartbeatTimeout(lastUpdatedAt) {
+    return getMinutesDiff(lastUpdatedAt) > 8;
+}
 
-        // 获取设备状态CSS类名
-        function getStatusClass(status, lastUpdatedAt) {
-            // 如果超时，强制返回“offline”样式
-            if (status !== 0 && isHeartbeatTimeout(lastUpdatedAt)) {
-                return "offline";
-            }
+// 获取状态配置（文本、颜色类名）
+function getStatusConfig(status, lastUpdatedAt) {
+    const isTimeout = status !== 0 && isHeartbeatTimeout(lastUpdatedAt);
 
-            const classMap = {
-                0: "offline",
-                1: "online",
-                2: "screen-off",
-                3: "locked"
-            };
+    // 0:离线, 1:在线, 2:息屏, 3:锁定
+    if (isTimeout || status === 0) {
+        return { text: "离线", class: "bg-red" };
+    }
+    
+    switch (status) {
+        case 1: return { text: "活跃", class: "bg-green" };
+        case 2: return { text: "息屏", class: "bg-orange" }; // 屏幕关闭
+        case 3: return { text: "锁定", class: "bg-blue" };
+        default: return { text: "未知", class: "bg-red" };
+    }
+}
 
-            return classMap[status] || "offline";
-        }
+// 电池信息处理
+function getBatteryInfo(battery) {
+    if (!battery || battery.power === undefined) {
+        return null;
+    }
 
-        // 电池信息
-        function getBatteryInfo(battery) {
-            // 设备没有电池
-            if (!battery || battery.power === undefined) {
-                return { text: '', className: '' };
-            }
+    const { power, charging } = battery;
+    let colorClass = '';
+    
+    if (charging) {
+        colorClass = 'text-green'; // CSS中可以添加这个辅助类，或者利用行内样式
+    } else if (power <= 20) {
+        colorClass = 'text-red';
+    }
 
-            const { power, charging } = battery;
-            let text = `${power}%`;
-            let className = '';
+    return {
+        power,
+        charging,
+        color: power <= 20 && !charging ? '#ef4444' : (charging ? '#10b981' : 'inherit')
+    };
+}
 
-            // 充电
-            if (charging) {
-                text += ' (充电中)';
-                // 充满
-                if (power >= 100) {
-                    className = 'battery-charged';
-                }
-                // 没充满
-                else {
-                    className = 'battery-charging';
-                }
-            }
-            // 没充
-            else className = power <= 15 ? 'battery-low' : 'battery-normal';
+function getOverallStatus(data) {
+    const devices = data.filter(d => !d?.ignored);
+    const hasActiveDevice = devices.some(device =>
+        device.status === 1 && !isHeartbeatTimeout(device.lastUpdatedAt)
+    );
 
-            return { text, className };
-        }
+    if (hasActiveDevice) {
+        return {
+            status: "online",
+            icon: "🐱",
+            title: "目前在线",
+            desc: "狼现在很活跃，快去抓他！（大雾"
+        };
+    }
 
-        // 检验所有设备状态
-        function getOverallStatus(data) {
-            // 忽略某些设备
-            const devices = data.filter(d => !d?.ignored);
+    const lastOnlineTimes = devices
+        .map(device => device.lastOnline ? new Date(device.lastOnline).getTime() : 0)
+        .filter(time => time > 0);
 
-            // 检查任意设备是否在线且未超时
-            const hasActiveDevice = devices.some(device =>
-                device.status === 1 && !isHeartbeatTimeout(device.lastUpdatedAt)
-            );
+    if (lastOnlineTimes.length === 0) {
+        return {
+            status: "offline",
+            icon: "💤",
+            title: "完全离线",
+            desc: "大概是睡着了，或者是去火星了。"
+        };
+    }
 
-            if (hasActiveDevice) {
-                return {
-                    status: "online",
-                    message: "在线",
-                    detail: "可以直接联系"
-                };
-            }
+    const latestLastOnline = Math.max(...lastOnlineTimes);
+    const minutesSinceLastOnline = getMinutesDiff(new Date(latestLastOnline));
 
-            // 获取所有设备的最后在线时间
-            const lastOnlineTimes = devices
-                .map(device => device.lastOnline ? new Date(device.lastOnline).getTime() : 0)
-                .filter(time => time > 0);
+    if (minutesSinceLastOnline <= 60) {
+        return {
+            status: "maybe",
+            icon: "🤔",
+            title: "可能在忙",
+            desc: "最近一小时内出现过，可能还没走远。"
+        };
+    } else {
+        return {
+            status: "offline",
+            icon: "💤",
+            title: "离线中",
+            desc: "看起来已经离开好一阵子了。"
+        };
+    }
+}
 
-            if (lastOnlineTimes.length === 0) {
-                return {
-                    status: "offline",
-                    message: "似了",
-                    detail: "看起来并不在线"
-                };
-            }
+async function fetchData() {
+    try {
+        const response = await fetch('https://dc1.zerowolf.top:1641/api/v1/status');
+        if (!response.ok) throw new Error('Status Network Error');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch failed:', error);
+        throw error;
+    }
+}
 
-            // 获取最近一次在线时间
-            const latestLastOnline = Math.max(...lastOnlineTimes);
-            const minutesSinceLastOnline = getMinutesDiff(new Date(latestLastOnline));
+function renderPage(data) {
+    const devices = data.data;
+    const overall = getOverallStatus(devices);
+    const statusDiv = document.getElementById('status-message');
+    const listDiv = document.getElementById('devices-container');
 
-            if (minutesSinceLastOnline <= 60) {
-                return {
-                    status: "maybe",
-                    message: "可能似了？",
-                    detail: "不确定，但最近有活动过"
-                };
-            } else {
-                return {
-                    status: "offline",
-                    message: "似了",
-                    detail: "看起来并不在线"
-                };
-            }
-        }
+    // 1. 渲染主状态横幅
+    statusDiv.innerHTML = `
+        <div class="status-banner ${overall.status}">
+            <div class="big-icon">${overall.icon}</div>
+            <div>
+                <div class="status-title">${overall.title}</div>
+                <div class="status-desc">${overall.desc}</div>
+            </div>
+        </div>
+    `;
 
-        // 从API获取数据
-        async function fetchData() {
-            try {
-                const response = await fetch('https://dc1.zerowolf.top:1641/api/v1/status');
-                if (!response.ok) {
-                    throw new Error('网络响应不正常');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('获取数据失败:', error);
-                throw error;
-            }
-        }
+    // 2. 渲染设备列表
+    listDiv.innerHTML = '';
+    
+    // 排序：在线的在前，离线的在后
+    devices.sort((a, b) => {
+        const aActive = (a.status !== 0 && !isHeartbeatTimeout(a.lastUpdatedAt));
+        const bActive = (b.status !== 0 && !isHeartbeatTimeout(b.lastUpdatedAt));
+        return bActive - aActive;
+    });
 
-        // 展示错误状态
-        function showErrorStatus(error) {
-            const statusMessage = document.getElementById('status-message');
-            statusMessage.innerHTML = `
-                <div class="error-status">
-                    <div class="status-icon">❌</div>
-                    <div>
-                        <div class="status-text">数据获取失败</div>
-                        <div class="status-detail">${error.message || '无法连接到服务器'}</div>
+    devices.forEach(device => {
+        const statusConfig = getStatusConfig(device.status, device.lastUpdatedAt);
+        const battery = getBatteryInfo(device.battery);
+        const ignoredTag = device.ignored ? '<span style="font-size:0.8em; opacity:0.6; margin-left:5px">(已隐藏)</span>' : '';
+
+        // 构建电池 HTML
+        let batteryHtml = '';
+        if (battery) {
+            const icon = battery.charging ? '⚡' : (battery.power > 90 ? '🔋' : '🪫');
+            batteryHtml = `
+                <div class="info-row">
+                    <span class="info-label">电量</span>
+                    <div class="battery-wrapper" style="color: ${battery.color}">
+                        ${icon} <span class="battery-text">${battery.power}%</span>
                     </div>
                 </div>
             `;
-
-            document.getElementById('devices-container').innerHTML = '';
         }
 
-        // 渲染页面
-        function renderPage(data) {
-            const devices = data.data;
-            const overallStatus = getOverallStatus(devices);
-
-            // 更新状态消息
-            const statusMessage = document.getElementById('status-message');
-            let statusClass = "";
-            let statusIcon = "";
-
-            if (overallStatus.status === "online") {
-                statusClass = "online-status";
-                statusIcon = "✅";
-            } else if (overallStatus.status === "maybe") {
-                statusClass = "maybe-status";
-                statusIcon = "🤔";
-            } else {
-                statusClass = "offline-status";
-                statusIcon = "❌";
-            }
-
-            statusMessage.innerHTML = `
-                <div class="${statusClass}">
-                    <div class="status-icon">${statusIcon}</div>
+        const cardHtml = `
+            <div class="device-card">
+                <div class="device-header">
                     <div>
-                        <div class="status-text">${overallStatus.message}</div>
-                        <div class="status-detail">${overallStatus.detail}</div>
+                        <div class="device-name">${device.name}${ignoredTag}</div>
+                    </div>
+                    <div class="device-badge ${statusConfig.class}">
+                        ${statusConfig.text}
                     </div>
                 </div>
-            `;
-
-            // 渲染设备卡片
-            const devicesContainer = document.getElementById('devices-container');
-            devicesContainer.innerHTML = '';
-
-            devices.forEach(device => {
-                const deviceCard = document.createElement('div');
-                deviceCard.className = 'device-card';
-
-                const statusText = getStatusText(device.status, device.lastUpdatedAt);
-                const statusClass = getStatusClass(device.status, device.lastUpdatedAt);
-                // 新增：获取当前设备的电池信息
-                const { text: batteryText, className: batteryClassName } = getBatteryInfo(device.battery);
-
-                // 检查设备是否被忽略
-                const ignoredLabel = device.ignored ? '<span class="ignored-label">(已忽略)</span>' : '';
-
-                deviceCard.innerHTML = `
-                    <div class="device-header">
-                        <div class="device-name-container">
-                            <div class="device-name">${device.name}</div>
-                            ${ignoredLabel}
-                        </div>
-                        <div class="device-status ${statusClass}">
-                            ${statusText}
-                        </div>
+                
+                <div class="device-body">
+                    <div class="info-row">
+                        <span class="info-label">当前应用</span>
+                        <span class="info-val" title="${device.message}">${device.message || '无'}</span>
                     </div>
-                    <div class="device-info">
-                        <div class="info-item">
-                            <div class="info-label">上次更新:</div>
-                            <div class="info-value">${formatDateTime(device.lastUpdatedAt)}</div>
-                            </div>
-                        <div class="info-item">
-                            <div class="info-label">上次在线:</div>
-                            <div class="info-value">${formatDateTime(device.lastOnline)}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">打开的APP:</div>
-                            <div class="info-value">${device.message}</div>
-                        </div>
-                        ${batteryText ? `<div class="info-item">
-                            <div class="info-label">电池:</div>
-                            <div class="info-value ${batteryClassName}"><strong>${batteryText}</strong></div>
-                        </div>` : ''}
+                    <div class="info-row">
+                        <span class="info-label">最后更新</span>
+                        <span class="info-val">${formatDateTime(device.lastUpdatedAt)}</span>
                     </div>
-                `;
+                    ${batteryHtml}
+                </div>
+            </div>
+        `;
+        listDiv.insertAdjacentHTML('beforeend', cardHtml);
+    });
+}
 
-                devicesContainer.appendChild(deviceCard);
-            });
-        }
+function showErrorStatus(error) {
+    document.getElementById('status-message').innerHTML = `
+        <div class="status-banner offline">
+            <div class="big-icon">❌</div>
+            <div>
+                <div class="status-title">连接失败</div>
+                <div class="status-desc">无法获取状态数据，请稍后再试喵。</div>
+            </div>
+        </div>
+    `;
+    document.getElementById('devices-container').innerHTML = '';
+}
 
-        // 更新倒计时显示
-        function updateCountdown(seconds) {
-            document.getElementById('countdown').textContent = seconds;
-        }
+function updateCountdown(seconds) {
+    document.getElementById('countdown').textContent = seconds;
+}
 
-        // 加载页面
-        document.addEventListener('DOMContentLoaded', async function () {
-            let countdown = 10;
-            let countdownInterval;
+document.addEventListener('DOMContentLoaded', function () {
+    let countdown = 10;
+    let interval;
 
-            // 开始倒计时
-            function startCountdown() {
-                countdown = 10;
-                updateCountdown(countdown);
-
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
-
-                countdownInterval = setInterval(() => {
-                    countdown--;
-                    updateCountdown(countdown);
-
-                    if (countdown <= 0) {
-                        clearInterval(countdownInterval);
-                        fetchAndUpdateData();
-                    }
-                }, 1000);
+    function startTimer() {
+        countdown = 10;
+        updateCountdown(countdown);
+        if (interval) clearInterval(interval);
+        
+        interval = setInterval(() => {
+            countdown--;
+            updateCountdown(countdown);
+            if (countdown <= 0) {
+                clearInterval(interval);
+                loadData();
             }
+        }, 1000);
+    }
 
-            // 获取与更新数据
-            async function fetchAndUpdateData() {
-                try {
-                    const data = await fetchData();
-                    renderPage(data);
-                } catch (error) {
-                    showErrorStatus(error);
-                } finally {
-                    // 10 秒后重新获取
-                    startCountdown();
-                }
-            }
+    async function loadData() {
+        try {
+            const data = await fetchData();
+            renderPage(data);
+        } catch (e) {
+            showErrorStatus(e);
+        } finally {
+            startTimer();
+        }
+    }
 
-            // 加载
-            fetchAndUpdateData();
+    // 初始加载
+    loadData();
 
-            // 刷新按钮
-            document.getElementById('refresh-btn').addEventListener('click', async function () {
-                this.disabled = true;
-                this.textContent = '刷新中...';
-
-                // 清空倒计时
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
-
-                await fetchAndUpdateData();
-
-                setTimeout(() => {
-                    this.disabled = false;
-                    this.textContent = '立即刷新';
-                }, 1000);
-            });
-        });
+    // 按钮事件
+    const btn = document.getElementById('refresh-btn');
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;margin:0 5px 0 0;vertical-align:middle"></span> 刷新中...';
+        
+        if (interval) clearInterval(interval);
+        
+        try {
+            const data = await fetchData();
+            renderPage(data);
+        } catch (e) {
+            showErrorStatus(e);
+        }
+        
+        // 稍微延迟一下恢复按钮，防止闪烁太快
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="icon">↻</span> 立即刷新';
+            startTimer();
+        }, 800);
+    });
+});

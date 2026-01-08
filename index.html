@@ -4,47 +4,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>零狼活着吗？</title>
+    <title>零狼的状态监控</title>
+    <link href="./fonts.css" rel="stylesheet">
     <link href="./index.css" rel="stylesheet">
     <script src="index.js"></script>
 </head>
 
 <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
     <div class="container">
         <header>
-            <h1>活着吗？</h1>
-            <p class="subtitle">零狼是否在线</p>
+            <div class="header-content">
+                <h1>状态监控</h1>
+                <p class="subtitle">零狼目前的在线设备概览</p>
+            </div>
+            <div class="header-status">
+                <div class="next-update" id="next-update">
+                    <span class="pulse-dot"></span>
+                    <span id="countdown">10</span>s 后刷新
+                </div>
+            </div>
         </header>
 
-        <div class="status-container">
-            <div id="status-message">
-                <div class="loading">正在加载...</div>
+        <div class="main-content">
+            <div id="status-message" class="hero-status">
+                <div class="loading-card">
+                    <div class="spinner"></div>
+                    <p>正在连接数据中枢...</p>
+                </div>
+            </div>
+
+            <div class="divider">
+                <span>设备列表</span>
             </div>
 
             <div class="devices-grid" id="devices-container">
-                <!-- 将会被JavaScript填充 -->
-            </div>
+                </div>
 
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="refresh-btn" id="refresh-btn">刷新</button>
-            </div>
-
-            <div class="next-update" id="next-update">
-                下一次更新: <span id="countdown">10</span>秒
+            <div class="actions">
+                <button class="refresh-btn" id="refresh-btn">
+                    <span class="icon">↻</span> 立即刷新
+                </button>
             </div>
         </div>
     </div>
 
     <footer>
         <p>
-            <a href="https://ski.ink/html/watchme.html" >原项目来自于 SALTWOOD</a>
+            <a href="https://ski.ink/html/watchme.html" target="_blank">原项目来自于 SALTWOOD</a>
         </p>
-
         <p class="thanks-text">
-            感谢 SALTWOOD 提供的代码基础与大力支持❤️
+            Designed with ❤️ by ZeroWolf
         </p>
     </footer>
-
 </body>
 
 </html>
