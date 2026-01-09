@@ -167,7 +167,7 @@ function renderPage(data) {
         // 构建电池 HTML
         let batteryHtml = '';
         if (battery) {
-            const icon = battery.charging ? '⚡' : (battery.power > 90 ? '🔋' : '🪫');
+            const icon = battery.charging ? '⚡' : (battery.power > 30 ? '🔋' : '🪫');
             batteryHtml = `
                 <div class="info-row">
                     <span class="info-label">电量</span>
