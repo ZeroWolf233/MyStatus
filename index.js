@@ -82,7 +82,7 @@ function getOverallStatus(data) {
     if (hasActiveDevice) {
         return {
             status: "online",
-            icon: "🐱",
+            icon: "✅",
             title: "目前在线",
             desc: "狼现在很活跃，快去抓他！（大雾"
         };
@@ -104,12 +104,12 @@ function getOverallStatus(data) {
     const latestLastOnline = Math.max(...lastOnlineTimes);
     const minutesSinceLastOnline = getMinutesDiff(new Date(latestLastOnline));
 
-    if (minutesSinceLastOnline <= 60) {
+    if (minutesSinceLastOnline <= 15) {
         return {
             status: "maybe",
             icon: "🤔",
             title: "可能在忙",
-            desc: "最近一小时内出现过，可能还没走远。"
+            desc: "最近15分钟内内出现过，可能还没走远。"
         };
     } else {
         return {
